@@ -4,7 +4,9 @@ In this project, a power bi based visualization app is proposed to analyze the n
 
 ## Datasets used
 
-From Speech project, [The RAVDESS dataset](https://www.kaggle.com/uwrfkaggler/ravdess-emotional-speech-audio) based on the paper [The Ryerson Audio-Visual Database of Emotional Speech and Song (RAVDESS)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0196391) has been analysed using [speech_sigproc.py](./speech/audio/speech_sigproc.py) 
+From Speech project, [The RAVDESS dataset](https://www.kaggle.com/uwrfkaggler/ravdess-emotional-speech-audio) based on the paper [The Ryerson Audio-Visual Database of Emotional Speech and Song (RAVDESS)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0196391) has been analysed using [speech_sigproc.py](./speech/audio/speech_sigproc.py). 
+
+From OCR project, [The FUNSD Dataset](https://guillaumejaume.github.io/FUNSD/) based on the paper [FUNSD Paper](https://arxiv.org/abs/1905.13538) has been preprocessed using [preprocess.py](./ocr-data/text/preprocess.py).
 
 ## State Space Model
 
@@ -14,6 +16,14 @@ A state space model consisting of features and labels are fed into an MCTS algor
 
 For a dataset, the feature extraction is the first step. An Expectation Maximisation step has likelihoods in various forms. For factor analysis, there is a marginal likelihood; for dirichlet processes, the likelihood is a differential equation. Since the EM step is Gaussian in nature, the probability distribution(s) is/are used for clustering and searching the dataset. 
 
+### App Main Page
+
+The App main page is a QSR visualizer page. When the maximum clusters are provided, the app asks for reward bias as well for input to MCTS simulation. 
+
+#### Models for the Power BI App
+
+
+
 ## Data Wrangling
 
 In the data wrangling stage, the data is processed through a complex plane where there is timestamp information recorded from the output of UCB scores from a Monte Carlo Simulation. Also, the time series is unit spaced with each recorded variable being: 
@@ -21,8 +31,6 @@ In the data wrangling stage, the data is processed through a complex plane where
 - no. of units required for calibration, 
 - the chosen distribution,
 - scores that are scaled from 0 to 1
-
-
 
 ## Multi-armed bandit frameworks
 
@@ -34,3 +42,4 @@ In a multi-armed bandit framework, a person simulates the environment by taking 
 ![Dataset Visualizer](./screenshot.PNG)
 
 ![Graph Statistics](./barplot.PNG)
+
