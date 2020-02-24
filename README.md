@@ -1,6 +1,18 @@
 # Power BI App for Visualizing Dataset behaviour
 
-In this project, a power bi based visualization app is proposed to analysing the neighborhood of the dataset using Quality Spatial Relations (QSR). Two datasets have been used to be analysed under Monte Carlo Tree Search (MCTS) and other popular Machine Learning algorithms. MCTS uses a UCB (Upper Confidence Bound) based reward system that is relevant to simulate within the state space of every dataset. 
+In this project, a power bi based visualization app is proposed to analyze the neighborhood of the dataset using Quality Spatial Relations (QSR). Two datasets have been used to be analysed under Monte Carlo Tree Search (MCTS) and other popular Machine Learning algorithms. MCTS uses a UCB (Upper Confidence Bound) based reward system that simulates within the state space of every dataset. 
+
+## State Space Model
+
+A state space model consisting of features and labels are fed into an MCTS algorithm. The state space model for each dataset consists of observations and transitions. When the data transitions to another state from an initial random state, the UCM model which is a multi-armed action bandit model, executes a Monte Carlo learning for `n` simulations. After obtaining the final state from an input state, the final state looks at the defined clusters which are ordered by a chosen metric. The number of maximum clusters are defined in the app user interface. The maximum clusters should not exceed the state space dimension of the input data.
+
+## Data Processing
+
+For a dataset, the feature extraction is the first step. An Expectation Maximisation step has likelihoods in various forms. For factor analysis, there is a marginal likelihood; for dirichlet processes, the likelihood is a differential equation. Since the EM step is Gaussian in nature, the probability distribution(s) is/are used for clustering and searching the dataset. 
+
+## Data Wrangling
+
+In the data wrangling stage, the data is processed through a complex plane where there is timestamp information recorded from the output of MCTS, 
 
 ## Multi-armed bandit frameworks
 
