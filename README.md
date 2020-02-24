@@ -11,3 +11,4 @@ In a multi-armed bandit framework, a person simulates the environment by taking 
 
 ![Dataset Visualizer](./screenshot.PNG)
 
+![Graph Statistics](./barplot.PNG)
