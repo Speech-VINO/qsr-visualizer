@@ -1,6 +1,10 @@
 # Power BI App for Visualizing Dataset behaviour
 
-In this project, a power bi based visualization app is proposed to analyze the neighborhood of the dataset using Quality Spatial Relations (QSR). Two datasets have been used to be analysed under Monte Carlo Tree Search (MCTS) and other popular Machine Learning algorithms. MCTS uses a UCB (Upper Confidence Bound) based reward system that simulates within the state space of every dataset. 
+In this project, a power bi based visualization app is proposed to analyze the neighborhood of the dataset using Quality Spatial Relations (QSR). Two datasets have been used to be analysed under Monte Carlo Tree Search (MCTS) and also other popular Machine Learning algorithms. MCTS uses a UCB (Upper Confidence Bound) based reward system that simulates within the state space of every dataset. 
+
+## Datasets used
+
+From Speech project, [The RAVDESS dataset](https://www.kaggle.com/uwrfkaggler/ravdess-emotional-speech-audio) based on the paper [The Ryerson Audio-Visual Database of Emotional Speech and Song (RAVDESS)](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0196391) has been analysed using [speech_sigproc.py](./speech/audio/speech_sigproc.py) 
 
 ## State Space Model
 
@@ -12,7 +16,13 @@ For a dataset, the feature extraction is the first step. An Expectation Maximisa
 
 ## Data Wrangling
 
-In the data wrangling stage, the data is processed through a complex plane where there is timestamp information recorded from the output of MCTS, 
+In the data wrangling stage, the data is processed through a complex plane where there is timestamp information recorded from the output of UCB scores from a Monte Carlo Simulation. Also, the time series is unit spaced with each recorded variable being: 
+
+- no. of units required for calibration, 
+- the chosen distribution,
+- scores that are scaled from 0 to 1
+
+
 
 ## Multi-armed bandit frameworks
 
