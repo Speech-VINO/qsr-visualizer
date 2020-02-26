@@ -6,10 +6,11 @@ import os, sys
 import numpy as np
 import pickle
 from tqdm import tqdm
-sys.path.append("/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/strands_qsr_lib/qsr_lib/build/lib")
+sys.path.append("/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/qsr_lib_ocr/qsr_lib/build/lib")
 from qsrlib.qsrlib import QSRlib, QSRlib_Request_Message
 from qsrlib_io.world_trace import Object_State, World_Trace
 import qsrlib_qstag.utils as utils
+from time import time
 
 def pretty_print_world_qsr_trace(which_qsr, qsrlib_response_message):
 	print(which_qsr, "request was made at ", str(qsrlib_response_message.req_made_at)
@@ -37,6 +38,7 @@ if __name__ == "__main__":
 	parser.add_argument("qsr", help="choose qsr: %s" % options, type=str, default='qtcbs')
 	parser.add_argument("--ros", action="store_true", default=False, help="Use ROS eco-system")
 
+	parser.add_argument("--print_graph", help="print the graph", action="store_true", default=False)
 	parser.add_argument("--validate", help="validate state chain. Only QTC", action="store_true", default=False)
 	parser.add_argument("--quantisation_factor", help="quantisation factor for 0-states in qtc, or 's'-states in mos", type=float, default=0.01)
 	parser.add_argument("--no_collapse", help="does not collapse similar adjacent states. Only QTC", action="store_true", default=True)
@@ -109,6 +111,8 @@ if __name__ == "__main__":
 	print(which_qsr)
 	print(dynamic_args["tpcc"])
 
+	t1 = time()
+	
 	if args.ros:
 		try:
 			import rospy
@@ -128,11 +132,16 @@ if __name__ == "__main__":
 
 	qstag = qsrlib_response_message.qstag
 
-	"""PRINT THE GRAPH TO FILE"""
-	#print("QSTAG Graph:\n", qstag.graph)
-	utils.graph2dot(qstag, "/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/graphs/beta_graph.dot")
-	os.system('dot -Tpdf /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/graphs/beta_graph.dot -o /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/graphs/beta_graph.pdf')
-	os.system('dot -Tpng /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/graphs/beta_graph.dot -o /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/graphs/beta_graph.png')
+	t2 = time()
+
+	print("Time: ", t2 - t1)
+
+	if args.print_graph:
+		"""PRINT THE GRAPH TO FILE"""
+		#print("QSTAG Graph:\n", qstag.graph)
+		utils.graph2dot(qstag, "/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/graphs/beta_graph.dot")
+		os.system('dot -Tpdf /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/graphs/beta_graph.dot -o /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/graphs/beta_graph.pdf')
+		os.system('dot -Tpng /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/graphs/beta_graph.dot -o /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/graphs/beta_graph.png')
 
 	print("Episodes:")
 	for i in qstag.episodes:
