@@ -24,11 +24,33 @@ Observations are inferences from the feature extraction stage. Let's say we conv
 
 Transitions are estimated factors assumed to be hierarchical which are derived from the observations. The factors obtained are Gaussian in nature and they are vectorized into `speech/state_space/models/factor_analysis.onnx` model.
 
+## MCTS Algorithm
 
+The Monte Carlo Tree Search Algorithm updates the rewards based on the end result obtained instead of its online counterpart Temporal Difference Learning, TD (lambda). The algorithm clusters using ward linkage, with a maximum clusters parameter. 
+
+Here are the results shown durng training of the Reward Scores, No. of Units, Chosen probability density function:
+
+**Below is the gamma distribution used for speech:**
+
+![Speech Gamma](./speech/simulator/speech_gamma.png)
+
+**Below is the no. of units used for calibration of gamma:**
+
+![Speech Gamma Units](./speech/simulator/speech_gamma_units.png)
+
+**Below is the weibull distribution used for OCR:**
+
+![OCR Weibull](./ocr-data/simulator/ocr_weibull.png)
+
+**Below is the no. of units used for calibration of weibull:**
+
+![OCR Weibull Units](./ocr-data/simulator/ocr_weibull_units.png)
 
 ## Data Processing
 
 For a dataset, the feature extraction is the first step. An Expectation Maximisation step has likelihoods in various forms. For factor analysis, there is a marginal likelihood; for dirichlet processes, the likelihood is a differential equation. Since the EM step is Gaussian in nature, the probability distribution(s) is/are used for clustering and searching the dataset. 
+
+The episode scores obtained from running the MCTS algorithm, must be sorted in order to create a time series data for QSR analysis. The timestamps will be corresponding to `argsort()` of `episode_scores`. The rewards are hierarchical in nature, and hence the sorting of the scores are performed. 
 
 ### Feat file extraction
 
@@ -105,6 +127,30 @@ def process_factors(ica_mixing_array, strings):
     ] * ica_mixing.shape[1], axis=0)))
 
 ```
+
+## Training of dataset parameters
+
+For the OCR project, the state space dimensions are:
+
+Observations: 199
+Transitions: 5823
+
+For the Speech project, the state space dimensions are:
+
+Observations: 60
+Transitions: 24
+
+It takes a huge time to train the state space for OCR project. The results are shown here:
+
+Episode scores for Speech:
+--------------------------
+
+[Episode scores for Speech](./speech/simulator/speech_episode_scores.png)
+
+Episode scores for OCR:
+-----------------------
+
+[Episode scores for OCR](./speech/simulator/ocr_episode_scores.png)
 
 ## App Main Page
 

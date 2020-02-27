@@ -140,11 +140,12 @@ if __name__ == "__main__":
 
 	print("Time: ", t2 - t1)
 
-	"""PRINT THE GRAPH TO FILE"""
-	#print("QSTAG Graph:\n", qstag.graph)
-	utils.graph2dot(qstag, "/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/weibull_graph.dot")
-	os.system('dot -Tpdf /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/weibull_graph.dot -o /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/weibull_graph.pdf')
-	os.system('dot -Tpng /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/weibull_graph.dot -o /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/weibull_graph.png')
+	if args.print_graph:
+		"""PRINT THE GRAPH TO FILE"""
+		#print("QSTAG Graph:\n", qstag.graph)
+		utils.graph2dot(qstag, "/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/weibull_graph.dot")
+		os.system('dot -Tpdf /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/weibull_graph.dot -o /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/weibull_graph.pdf')
+		os.system('dot -Tpng /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/weibull_graph.dot -o /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/weibull_graph.png')
 
 	print("Episodes:")
 	for i in qstag.episodes:

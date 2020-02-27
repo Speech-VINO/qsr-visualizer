@@ -42,6 +42,10 @@ if __name__ == "__main__":
 	parser.add_argument("--validate", help="validate state chain. Only QTC", action="store_true", default=False)
 	parser.add_argument("--quantisation_factor", help="quantisation factor for 0-states in qtc, or 's'-states in mos", type=float, default=0.01)
 	parser.add_argument("--no_collapse", help="does not collapse similar adjacent states. Only QTC", action="store_true", default=True)
+	parser.add_argument("--cauchy", type=argparse.FileType('r'), required=True)
+	parser.add_argument("--units", type=argparse.FileType('r'), required=True)
+	parser.add_argument("--scores", type=argparse.FileType('r'), required=True)
+	parser.add_argument("--timestamp", type=argparse.FileType('r'), required=True)
 	#parser.add_argument("--distance_threshold", help="distance threshold for qtcb <-> qtcc transition. Only QTCBC", type=float)
 
 	args = parser.parse_args()
@@ -86,10 +90,10 @@ if __name__ == "__main__":
                     #"filters": {"median_filter" : {"window": 2}}
 					}
 
-	cauchy_units = np.load("/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/cauchy_units.npy")
-	cauchy = np.load("/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/cauchy.npy")
-	scores = np.load("/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/scaled_scores.npy")
-	timestamp = np.load("/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/ocr-data/timestamp.npy")
+	cauchy_units = np.load(args.units)
+	cauchy = np.load(args.beta)
+	scores = np.load(args.scores)
+	timestamp = np.load(args.timestamp)
 
 	o1 = []
 	o2 = []

@@ -36,7 +36,7 @@ def tfidf_vectorizer(corpus):
     
     return tfidf
 
-def latent_semantic_analysis():
+def latent_semantic_analysis(tfidf):
     svd = TruncatedSVD(n_components=4, n_iter=7, random_state=42)
     svd.fit(tfidf)
 
@@ -52,5 +52,5 @@ def calculate_similarity(svd):
     similarity_mean = similarity.mean()
     similarity_std = similarity.std()
 
-    return similarity, simiularity_mean, similarity_std
+    return similarity, similarity_mean, similarity_std
 

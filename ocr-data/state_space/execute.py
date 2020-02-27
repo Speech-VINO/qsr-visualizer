@@ -1,5 +1,6 @@
 import sys
 sys.path.append("../../")
+from preprocess import *
 from common import lib
 from lib.running_variance import RunningVariance
 from itertools import count
@@ -20,34 +21,24 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
 	parser.add_argument("--distribution", type=str, default=False, help="Distribution")
+    parser.add_argument("--MAX_CLUSTERS", type=int, default=1000, help="Max Clusters")
+    parser.add_argument("--num_epochs", type=int, default=2, help="No. of epochs")
+    parser.add_argument("--max_number_of_episodes", type=int, default=500, help="Max No. of epochs")
 
     return parser.parse_args()
 
-sess = nxrun.InferenceSession("./models/factor_analysis.onnx")
+corpus, labels = obtain_corpus(obtain_files())
+tfidf = tfidf_vectorizer(corpus)
+similarity, similarity_mean, similarity_std = \
+    calculate_similarity(latent_semantic_analysis(tfidf))
+one_hot = one_hot_encoded_labels(labels)
 
-latent = np.load('../dataset/latent.npy')
-mel_component_matrix = sess.run(None, {'latent': latent})
-mel_component_matrix = mel_component_matrix[0]
-factors = pickle.load(open("../dataset/factors.pkl", "rb"))
-noises = pickle.load(open("../dataset/noises.pkl", "rb"))
-
-state_dim = 24 # Dimension of state space
-action_count = 60 # Number of actions
-hidden_size = 256 # Number of hidden units
+state_dim = tfidf.todense().shape[0] # Dimension of state space
+action_count = tfidf.todense().shape[1] # Number of actions
 update_frequency = 20
 
-noise_values = np.array(list(noises.values()))
-noise_mean = np.mean(noise_values)
-noise_std = np.std(noise_values)
-
-scaler = MinMaxScaler(feature_range=(0,6)).fit((noise_values - noise_mean)/noise_std)
-
-state_space, non_deterministic_hierarchical_clustering, least_noise_model, marginal_model = \
-state_space_model(factors, noises, mel_component_matrix)
-
 class PGCREnv(BanditEnv):
-    def __init__(self, num_actions = 10, 
-    observation_space = None, distribution = "factor_model", evaluation_seed=387):
+    def __init__(self, num_actions = 10, observation_space = None, distribution = "factor_model", evaluation_seed=387):
         super(BanditEnv, self).__init__()
         
         self.action_space = ActionSpace(range(num_actions))
@@ -57,29 +48,14 @@ class PGCREnv(BanditEnv):
         
         np.random.seed(evaluation_seed)
         
-        self.reward_parameters = None
-        if distribution == "bernoulli":
-            self.reward_parameters = np.random.rand(num_actions)
-        elif distribution == "normal":
-            self.reward_parameters = (np.random.randn(num_actions), np.random.rand(num_actions))
-        elif distribution == "heavy-tail":
-            self.reward_parameters = np.random.rand(num_actions)
-        elif distribution == "factor_model":
-            self.reward_parameters = (np.array(list(factors.values())).sum(axis=2), 
-                          np.array(list(noises.values())))
-        else:
-            print("Please use a supported reward distribution", flush = True)
-            sys.exit(0)
+        self.reward_parameters = [similarity.sum(axis=1), similarity.sum(axis=1)]
         
-        if distribution != "normal":
-            self.optimal_arm = np.argmax(self.reward_parameters)
-        else:
-            self.optimal_arm = np.argmax(self.reward_parameters[0])
+        self.optimal_arm = np.argmax(self.reward_parameters)
     
     def reset(self):
         self.is_reset = True
         action = np.random.randint(0,action_count)
-        return mel_component_matrix[action], list(factors.keys())[action]
+        return tfidf.todense(), action
     
     def compute_gap(self, action):
         if self.distribution == "factor_model":
@@ -114,39 +90,39 @@ class PGCREnv(BanditEnv):
                 gap = self.reward_parameters[self.optimal_arm] - self.reward_parameters[action]        #HACK to compute expected gap
         elif self.distribution == "factor_model":
             if valid_action:
-                reward = np.linalg.norm(
-                    self.reward_parameters[0][action],1
-                ) + \
-                np.linalg.norm(
-                    self.reward_parameters[1][action],1
-                ) * np.random.randn()
+                reward = self.reward_parameters[0][action] + \
+                self.reward_parameters[1][action] * np.random.randn()
         else:
             print("Please use a supported reward distribution", flush = True)
             sys.exit(0)
             
         observation = marginal_model(action)
         
-        return(observation, list(factors.keys())[action], reward, self.is_reset, '')
+        return (observation, action, reward, self.is_reset, '')
 
-def discount_rewards(r, factor_model, gamma=0.999):
+def discount_rewards(r, svd_model, gamma=0.999):
     """Take 1D float array of rewards and compute discounted reward """
     discounted_r = np.zeros_like(r,dtype=np.float32)
     running_add = 0
     f_ = 0
-    f = np.linalg.norm(factor_model[0],1)
+    f = np.linalg.norm(svd_model[0],1)
     running_add = f
     for t in reversed(range(0, r.size)):
         if (t < (r.size - 1) and r.size >= 2):
-            f_ = np.linalg.norm(factor_model[t+1],1)
-            f = np.linalg.norm(factor_model[t],1)
+            f_ = np.linalg.norm(svd_model[t+1],1)
+            f = np.linalg.norm(svd_model[t],1)
             running_add = running_add + gamma * f_ - f
         running_add = running_add + r[t]
         discounted_r[t] = running_add
     return discounted_r
 
-def execute(MAX_CLUSTERS=11, num_epochs=2, max_number_of_episodes=500, reward_sum=0):
+def execute(args):
+    MAX_CLUSTERS = args.MAX_CLUSTERS
+    num_epochs = args.num_epochs
+    max_number_of_episodes = args.max_number_of_episodes
 
     running_variance = RunningVariance()
+    reward_sum = 0
 
     epoch_stats = []
     net_actions = []
@@ -170,31 +146,34 @@ def execute(MAX_CLUSTERS=11, num_epochs=2, max_number_of_episodes=500, reward_su
             observation, model = env.reset()
             factor_sequence = []
             t = 1
-            for state_dim_i in range(state_dim):
+            for state_dim_i in tqdm(range(state_dim)):
                 done = False
+                
                 while not done:
                     
-                    state = np.ascontiguousarray(np.reshape(observation[:,state_dim_i], [1,120]).astype(np.float32))
+                    state = np.ascontiguousarray(
+                        np.reshape(observation[state_dim_i,:], [1,action_count]).astype(np.float32)
+                    )
                     states.append(state)
 
+                    # Run the policy network and get an action to take.
+                    # probability with actions
                     is_reset = False
                     score = 0.0
-                    action, score = least_noise_model(
+                    action, score = maximum_similarity_model(
                         model, non_deterministic_hierarchical_clustering(model), 
-                        scaler, MAX_CLUSTERS, NOISE_PARAM, noise_mean, noise_std, 
+                        scaler, MAX_CLUSTERS, NOISE_PARAM, similarity_mean, similarity_std, 
                         env=env
                     )
                     is_reset = env.is_reset
                     
                     net_actions.append(action)
 
-                    z = np.ones((1,state_dim)).astype(np.float32) * 1.25/120
-                    z[:,state_dim_i] = 0.75
-                    labels.append(z)
+                    labels.append(one_hot[state_dim_i].values)
                     
                     # step the environment and get new measurements
                     observation, model, reward, done, _ = env.step(action)
-                    
+
                     done = is_reset if is_reset is True else False
 
                     observation = np.ascontiguousarray(observation)
@@ -207,22 +186,18 @@ def execute(MAX_CLUSTERS=11, num_epochs=2, max_number_of_episodes=500, reward_su
                     # Record reward (has to be done after we call step() to get reward for previous action)
                     rewards.append(float(reward))
 
-                    factor_sequence.append(list(factors.values())[action])
+                    factor_sequence.append(similarity[action])
 
                     stats.episode_rewards[episode_number] += reward
                     stats.episode_lengths[episode_number] = t
                     stats.episode_scores[episode_number] += score
 
                     t += 1
-
-            # Stack together all inputs, hidden states, action gradients, and rewards for this episode
-            epr = np.vstack(rewards).astype(np.float32)
-
+                    
             # Compute the discounted reward backwards through time.
             discounted_epr = discount_rewards(epr, factor_sequence)
             
             for discounted_reward in discounted_epr:
-                # Keep a running estimate over the variance of of the discounted rewards
                 running_variance.add(discounted_reward.sum())
 
             stats.episode_running_variance[episode_number] = running_variance.get_variance()
@@ -241,15 +216,24 @@ if __name__ == "__main__":
             (beta, cauchy, gamma, rayleigh, weibull)")
         exit()
     
-    if not os.path.isfile('tmp_models/stats.npy'):
+    if not os.path.isfile('tmp_models/episode_scores.npy'):
+        print("Training for scores takes time for OCR data")
         args = parse_args()
 
-        stats = execute()
+        stats = execute(args)
 
-        np.save('tmp_models/stats.npy', stats)
+        np.save('tmp_models/episode_scores.npy', stats.episode_scores)
     else:
         print("Using Trained statistical data...")
-        stats = np.load('tmp_models/stats.npy')
+        stats = plotting.EpisodeStats(
+            episode_lengths=np.zeros(max_number_of_episodes),
+            episode_rewards=np.zeros(max_number_of_episodes),
+            episode_running_variance=np.zeros(max_number_of_episodes),
+            episode_scores=np.zeros(max_number_of_episodes),
+            losses=np.zeros(max_number_of_episodes))
+        episode_scores = np.load('tmp_models/episode_scores.npy')
+        stats['episode_scores'] = episode_scores
+
     
     print("Training the distributions with obtained reward scores from MCTS..")
 

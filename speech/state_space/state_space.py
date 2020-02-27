@@ -9,7 +9,7 @@ import scipy
 from scipy.cluster.hierarchy import ward, fcluster
 from scipy.spatial.distance import pdist
 
-def run_mcts(clusters, noise, scaler, MAX_CLUSTERS, NOISE_PARAM, noise_mean, noise_std):
+def run_mcts(clusters, noise, scaler, MAX_CLUSTERS, NOISE_PARAM, noise_mean, noise_std, action_count=24):
     
     _HCC = namedtuple("HierarchicalCluster", "cluster noise terminal")
 
@@ -43,11 +43,11 @@ def run_mcts(clusters, noise, scaler, MAX_CLUSTERS, NOISE_PARAM, noise_mean, noi
 
         def reward(self):
             return (MAX_CLUSTERS - self.cluster) / MAX_CLUSTERS + NOISE_PARAM - \
-        abs(scaler.transform(((np.array([self.noise]*24) - noise_mean) / noise_std).reshape(1,-1)).flatten()[0])
+        abs(scaler.transform(((np.array([self.noise]*action_count) - noise_mean) / noise_std).reshape(1,-1)).flatten()[0])
         
     return HierarchicalCluster
 
-def state_space_model(factors, noises, mel_component_matrix):
+def state_space_model(factors, noises, mel_component_matrix, MAX_CLUSTERS):
     def state_space(state):
         factor = factors[state]
         noise = noises[state]
