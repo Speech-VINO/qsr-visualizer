@@ -6,7 +6,7 @@ import os, sys
 import numpy as np
 import pickle
 from tqdm import tqdm
-sys.path.append("/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/qsr_lib_ocr/qsr_lib/build/lib")
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/build/lib")
 from qsrlib.qsrlib import QSRlib, QSRlib_Request_Message
 from qsrlib_io.world_trace import Object_State, World_Trace
 import qsrlib_qstag.utils as utils
@@ -91,7 +91,7 @@ if __name__ == "__main__":
 					}
 
 	weibull_units = np.load(args.units)
-	weibull = np.load(args.beta)
+	weibull = np.load(args.weibull)
 	scores = np.load(args.scores)
 	timestamp = np.load(args.timestamp)
 

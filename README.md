@@ -28,7 +28,7 @@ Transitions are estimated factors assumed to be hierarchical which are derived f
 
 The Monte Carlo Tree Search Algorithm updates the rewards based on the end result obtained instead of its online counterpart Temporal Difference Learning, TD (lambda). The algorithm clusters using ward linkage, with a maximum clusters parameter. 
 
-Here are the results shown durng training of the Reward Scores, No. of Units, Chosen probability density function:
+Here are the results shown during training of the Reward Scores, No. of Units, Chosen probability density function:
 
 **Below is the gamma distribution used for speech:**
 
@@ -145,12 +145,12 @@ It takes a huge time to train the state space for OCR project. The results are s
 Episode scores for Speech:
 --------------------------
 
-[Episode scores for Speech](./speech/simulator/speech_episode_scores.png)
+![Episode scores for Speech](./speech/simulator/speech_episode_scores.png)
 
 Episode scores for OCR:
 -----------------------
 
-[Episode scores for OCR](./speech/simulator/ocr_episode_scores.png)
+![Episode scores for OCR](./speech/simulator/ocr_episode_scores.png)
 
 ## App Main Page
 
@@ -161,7 +161,7 @@ The App main page is a QSR visualizer page. When the maximum clusters are provid
 How to execute the app
 -------------------------------
 
-source ./speech/state_space/qsr.sh --dist=all
+./speech/state_space/qsr.sh --d all
 
 This command shows the final QSR plot after going through a `2` epoch training loop with Speech dataset, and another training loop with `all` distributions.
 
@@ -188,6 +188,38 @@ results = sess.run(None, {'latent': np.load('speech/dataset/latent.npy')})
 
 ```
 
+### MCTS Results
+
+The MCTS algorithm replicates the source dataset of speech for searching the dataset:
+
+- by factor analysis correlation
+- by maximising the reward by least noise
+
+```python
+
+MAX_CLUSTERS = 11
+NOISE_PARAM = 4.30
+
+mcts_reward = (MAX_CLUSTERS - self.cluster) / MAX_CLUSTERS + NOISE_PARAM - \
+        scaler.transform(((np.array([self.noise]*action_count) - noise_mean) / noise_std).reshape(1,-1)).flatten()[0]
+
+```
+
+The MCTS algorithm replicates the source dataset of ocr for searching the dataset:
+
+- by latent sematic analysis similarities
+- by maximising the reward by a regularized similarity
+
+```python
+
+MAX_CLUSTERS = 1000
+NOISE_PARAM = 4.30
+
+mcts_reward = (MAX_CLUSTERS - self.cluster) / MAX_CLUSTERS + NOISE_PARAM - \
+        scaler.transform(((np.array([self.similarity]*action_count) - similarity_mean) / similarity_std).reshape(1,-1)).flatten()[0]
+
+```
+
 ## Data Wrangling
 
 In the data wrangling stage, the data is processed through a complex plane where there is timestamp information recorded from the output of UCB scores from a Monte Carlo Simulation. Also, the time series is unit spaced with each recorded variable being: 
@@ -207,3 +239,45 @@ In a multi-armed bandit framework, a person simulates the environment by taking 
 
 ![Graph Statistics](./barplot.PNG)
 
+## Results of Execution (Speech Data)
+
+### Analysis of Use Cases
+
+#### Beta Distribution
+
+The net time taken to produce the Qualitative Spatio-Temporal Activity Graph (QSTAG)
+
+Time:  0.0235321521759
+
+Histogram of Graphlets:
+[2, 2, 3, 2, 2, 1]
+
+#### Cauchy Distribution
+
+The net time taken to produce the Qualitative Spatio-Temporal Activity Graph (QSTAG)
+
+Time:  55.6756868362
+
+Histogram of Graphlets:
+[63, 23, 54, 42, 100, 32, 13, 49, 1, 42, 21, 16, 28, 4, 2, 29, 18, 9, 2, 7, 18, 9, 8, 9, 7, 4, 10, 6, 6, 9, 3, 1, 17, 7, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1]
+
+#### Gamma Distribution
+
+Time:  365.94026804
+
+Histogram of Graphlets:
+[2, 100, 69, 58, 15, 127, 50, 45, 39, 35, 2, 65, 29, 27, 112, 30, 28, 24, 7, 1, 4, 39, 14, 22, 27, 23, 2, 2, 1, 12, 2, 1, 2, 5, 5, 1, 3, 3, 3, 3, 1, 1, 3, 2, 2, 2]
+
+#### Rayleigh Distribution
+
+Time:  11.341711998
+
+Histogram of Graphlets:
+[78, 76, 77, 77, 76, 75, 1, 1, 1, 1, 1, 1]
+
+#### Weibull Distribution
+
+Time:  190.360364914
+
+Histogram of Graphlets:
+[30, 9, 64, 125, 19, 81, 58, 59, 44, 60, 18, 18, 14, 29, 3, 23, 3, 24, 86, 33, 14, 40, 1, 3, 6, 3, 4, 4, 2, 1, 3, 1, 3, 2, 2, 2, 3, 2, 1, 2, 1]

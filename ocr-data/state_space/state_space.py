@@ -47,7 +47,7 @@ def run_mcts(clusters, similarity, scaler, MAX_CLUSTERS, NOISE_PARAM, similarity
 
         def reward(self):
             return (MAX_CLUSTERS - self.cluster) / MAX_CLUSTERS + NOISE_PARAM - \
-        abs(scaler.transform(((np.array([self.similarity]*action_count) - similarity_mean) / similarity_std).reshape(1,-1)).flatten()[0])
+        scaler.transform(((np.array([self.similarity]*action_count) - similarity_mean) / similarity_std).reshape(1,-1)).flatten()[0]
         
     return HierarchicalCluster
 

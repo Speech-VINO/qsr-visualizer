@@ -1,10 +1,9 @@
 import sys
 sys.path.append("../../")
-from common import lib
-from lib.running_variance import RunningVariance
+from common.lib.running_variance import RunningVariance
 from itertools import count
-from lib import plotting
-from lib.envs.bandit import BanditEnv, ActionSpace
+from common.lib import plotting
+from common.lib.envs.bandit import BanditEnv, ActionSpace
 import numpy as np
 import sys
 import pickle
@@ -15,21 +14,26 @@ import onnxruntime as nxrun
 from sklearn.preprocessing import MinMaxScaler
 import os
 import onnxruntime as nxrun
+from tqdm import tqdm
 
 def parse_args():
 
     parser = argparse.ArgumentParser()
-	parser.add_argument("--distribution", type=str, default=False, help="Distribution")
+    parser.add_argument("--distribution", type=str, default=False, help="Distribution")
 
     return parser.parse_args()
 
-sess = nxrun.InferenceSession("./models/factor_analysis.onnx")
+dirname = os.path.dirname(os.path.abspath(__file__))
+sess = nxrun.InferenceSession(dirname + "/models/factor_analysis.onnx")
 
-latent = np.load('../dataset/latent.npy')
+latent = np.load(dirname + '/../dataset/latent.npy')
+mel_calibration_matrix = np.load(dirname + '/../dataset/mel_calibration.npy')
 mel_component_matrix = sess.run(None, {'latent': latent})
 mel_component_matrix = mel_component_matrix[0]
-factors = pickle.load(open("../dataset/factors.pkl", "rb"))
-noises = pickle.load(open("../dataset/noises.pkl", "rb"))
+mel_component_matrix = np.matmul(mel_component_matrix, mel_calibration_matrix)
+mel_component_matrix = mel_component_matrix.transpose(0,2,1)
+factors = pickle.load(open(dirname + "/../dataset/factors.pkl", "rb"))
+noises = pickle.load(open(dirname + "/../dataset/noises.pkl", "rb"))
 
 state_dim = 24 # Dimension of state space
 action_count = 60 # Number of actions
@@ -41,92 +45,6 @@ noise_mean = np.mean(noise_values)
 noise_std = np.std(noise_values)
 
 scaler = MinMaxScaler(feature_range=(0,6)).fit((noise_values - noise_mean)/noise_std)
-
-state_space, non_deterministic_hierarchical_clustering, least_noise_model, marginal_model = \
-state_space_model(factors, noises, mel_component_matrix)
-
-class PGCREnv(BanditEnv):
-    def __init__(self, num_actions = 10, 
-    observation_space = None, distribution = "factor_model", evaluation_seed=387):
-        super(BanditEnv, self).__init__()
-        
-        self.action_space = ActionSpace(range(num_actions))
-        self.distribution = distribution
-        
-        self.observation_space = observation_space
-        
-        np.random.seed(evaluation_seed)
-        
-        self.reward_parameters = None
-        if distribution == "bernoulli":
-            self.reward_parameters = np.random.rand(num_actions)
-        elif distribution == "normal":
-            self.reward_parameters = (np.random.randn(num_actions), np.random.rand(num_actions))
-        elif distribution == "heavy-tail":
-            self.reward_parameters = np.random.rand(num_actions)
-        elif distribution == "factor_model":
-            self.reward_parameters = (np.array(list(factors.values())).sum(axis=2), 
-                          np.array(list(noises.values())))
-        else:
-            print("Please use a supported reward distribution", flush = True)
-            sys.exit(0)
-        
-        if distribution != "normal":
-            self.optimal_arm = np.argmax(self.reward_parameters)
-        else:
-            self.optimal_arm = np.argmax(self.reward_parameters[0])
-    
-    def reset(self):
-        self.is_reset = True
-        action = np.random.randint(0,action_count)
-        return mel_component_matrix[action], list(factors.keys())[action]
-    
-    def compute_gap(self, action):
-        if self.distribution == "factor_model":
-            gap = np.absolute(self.reward_parameters[0][self.optimal_arm] - self.reward_parameters[0][action])
-        elif self.distribution != "normal":
-            gap = np.absolute(self.reward_parameters[self.optimal_arm] - self.reward_parameters[action])
-        else:
-            gap = np.absolute(self.reward_parameters[0][self.optimal_arm] - self.reward_parameters[0][action])
-        return gap
-    
-    def step(self, action):
-        self.is_reset = False
-        
-        valid_action = True
-        if (action is None or action < 0 or action >= self.action_space.n):
-            print("Algorithm chose an invalid action; reset reward to -inf", flush = True)
-            reward = float("-inf")
-            gap = float("inf")
-            valid_action = False
-        
-        if self.distribution == "bernoulli":
-            if valid_action:
-                reward = np.random.binomial(1, self.reward_parameters[action])
-                gap = self.reward_parameters[self.optimal_arm] - self.reward_parameters[action]
-        elif self.distribution == "normal":
-            if valid_action:
-                reward = self.reward_parameters[0][action] + self.reward_parameters[1][action] * np.random.randn()
-                gap = self.reward_parameters[0][self.optimal_arm] - self.reward_parameters[0][action]
-        elif self.distribution == "heavy-tail":
-            if valid_action:
-                reward = self.reward_parameters[action] + np.random.standard_cauchy()
-                gap = self.reward_parameters[self.optimal_arm] - self.reward_parameters[action]        #HACK to compute expected gap
-        elif self.distribution == "factor_model":
-            if valid_action:
-                reward = np.linalg.norm(
-                    self.reward_parameters[0][action],1
-                ) + \
-                np.linalg.norm(
-                    self.reward_parameters[1][action],1
-                ) * np.random.randn()
-        else:
-            print("Please use a supported reward distribution", flush = True)
-            sys.exit(0)
-            
-        observation = marginal_model(action)
-        
-        return(observation, list(factors.keys())[action], reward, self.is_reset, '')
 
 def discount_rewards(r, factor_model, gamma=0.999):
     """Take 1D float array of rewards and compute discounted reward """
@@ -144,7 +62,93 @@ def discount_rewards(r, factor_model, gamma=0.999):
         discounted_r[t] = running_add
     return discounted_r
 
-def execute(MAX_CLUSTERS=11, num_epochs=2, max_number_of_episodes=500, reward_sum=0):
+def execute(MAX_CLUSTERS=11, NOISE_PARAM=4.30, num_epochs=1, max_number_of_episodes=500, reward_sum=0):
+
+    state_space, non_deterministic_hierarchical_clustering, least_noise_model, marginal_model = \
+    state_space_model(factors, noises, mel_component_matrix, MAX_CLUSTERS)
+
+    class PGCREnv(BanditEnv):
+        def __init__(self, num_actions = 10, 
+        observation_space = None, distribution = "factor_model", evaluation_seed=387):
+            super(BanditEnv, self).__init__()
+            
+            self.action_space = ActionSpace(range(num_actions))
+            self.distribution = distribution
+            
+            self.observation_space = observation_space
+            
+            np.random.seed(evaluation_seed)
+            
+            self.reward_parameters = None
+            if distribution == "bernoulli":
+                self.reward_parameters = np.random.rand(num_actions)
+            elif distribution == "normal":
+                self.reward_parameters = (np.random.randn(num_actions), np.random.rand(num_actions))
+            elif distribution == "heavy-tail":
+                self.reward_parameters = np.random.rand(num_actions)
+            elif distribution == "factor_model":
+                self.reward_parameters = (np.array(list(factors.values())).sum(axis=2), 
+                            np.array(list(noises.values())))
+            else:
+                print("Please use a supported reward distribution", flush = True)
+                sys.exit(0)
+            
+            if distribution != "normal":
+                self.optimal_arm = np.argmax(self.reward_parameters)
+            else:
+                self.optimal_arm = np.argmax(self.reward_parameters[0])
+        
+        def reset(self):
+            self.is_reset = True
+            action = np.random.randint(0,action_count)
+            return mel_component_matrix[action], list(factors.keys())[action]
+        
+        def compute_gap(self, action):
+            if self.distribution == "factor_model":
+                gap = np.absolute(self.reward_parameters[0][self.optimal_arm] - self.reward_parameters[0][action])
+            elif self.distribution != "normal":
+                gap = np.absolute(self.reward_parameters[self.optimal_arm] - self.reward_parameters[action])
+            else:
+                gap = np.absolute(self.reward_parameters[0][self.optimal_arm] - self.reward_parameters[0][action])
+            return gap
+        
+        def step(self, action):
+            self.is_reset = False
+            
+            valid_action = True
+            if (action is None or action < 0 or action >= self.action_space.n):
+                print("Algorithm chose an invalid action; reset reward to -inf", flush = True)
+                reward = float("-inf")
+                gap = float("inf")
+                valid_action = False
+            
+            if self.distribution == "bernoulli":
+                if valid_action:
+                    reward = np.random.binomial(1, self.reward_parameters[action])
+                    gap = self.reward_parameters[self.optimal_arm] - self.reward_parameters[action]
+            elif self.distribution == "normal":
+                if valid_action:
+                    reward = self.reward_parameters[0][action] + self.reward_parameters[1][action] * np.random.randn()
+                    gap = self.reward_parameters[0][self.optimal_arm] - self.reward_parameters[0][action]
+            elif self.distribution == "heavy-tail":
+                if valid_action:
+                    reward = self.reward_parameters[action] + np.random.standard_cauchy()
+                    gap = self.reward_parameters[self.optimal_arm] - self.reward_parameters[action]        #HACK to compute expected gap
+            elif self.distribution == "factor_model":
+                if valid_action:
+                    reward = np.linalg.norm(
+                        self.reward_parameters[0][action],1
+                    ) + \
+                    np.linalg.norm(
+                        self.reward_parameters[1][action],1
+                    ) * np.random.randn()
+            else:
+                print("Please use a supported reward distribution", flush = True)
+                sys.exit(0)
+                
+            observation = marginal_model(action)
+            
+            return(observation, list(factors.keys())[action], reward, self.is_reset, '')
 
     running_variance = RunningVariance()
 
@@ -230,27 +234,35 @@ def execute(MAX_CLUSTERS=11, num_epochs=2, max_number_of_episodes=500, reward_su
         plotting.plot_pgresults(stats)
         epoch_stats.append(stats)
 
+    uniq_actions = np.unique(net_actions)
+    np.save(dirname + "/tmp_models/net_actions.npy", uniq_actions)
+
+    print("MCTS Coverage: ", len(uniq_actions) / state_dim)
+
     return stats
 
 if __name__ == "__main__":
 
     print("Training the state space with MCTS simulation and PGCR Env")
 
+    args = parse_args()
+
     if not args.distribution:
         print("The distribution must be specified, or specify all for executing all distributions: \
             (beta, cauchy, gamma, rayleigh, weibull)")
         exit()
     
-    if not os.path.isfile('tmp_models/stats.npy'):
-        args = parse_args()
+    if not os.path.isfile(dirname + '/tmp_models/episode_scores.npy'):
 
         stats = execute()
 
-        np.save('tmp_models/stats.npy', stats)
+        np.save(open(dirname + '/tmp_models/episode_scores.npy', 'wb'), stats.episode_scores)
+        np.save(open(dirname + '/tmp_models/episode_rewards.npy', 'wb'), stats.episode_rewards)
+        np.save(open(dirname + '/tmp_models/episode_running_variance.npy', 'wb'), stats.episode_running_variance)
     else:
         print("Using Trained statistical data...")
-        stats = np.load('tmp_models/stats.npy')
     
+    episode_scores = np.load(dirname + '/tmp_models/episode_scores.npy')
     print("Training the distributions with obtained reward scores from MCTS..")
 
     if args.distribution != "all":
@@ -258,20 +270,20 @@ if __name__ == "__main__":
         print("""Running tensorflow model for '{z}' distribution""".format(z=z))
 
         pdf, scaled_scores, units_val, y_val, loss_val, loss_values, y_vals = \
-            random_distributions.execute(stats, args.distribution)
-        np.save("""tmp_models/{dist}.npy""".format(dist=args.distribution), pdf)
-        np.save("""tmp_models/{units}.npy""".format(units=args.distribution+"_units"), units_val)
-        np.save("""tmp_models/{score}.npy""".format(score=args.distribution+"_scores"), scaled_scores)
-        np.save("""tmp_models/{timestamp}.npy""".format(timestamp=args.distribution+"_timestamp"), stats.episode_scores.argsort())
+            random_distributions.execute(episode_scores, args.distribution)
+        np.save(dirname + """/tmp_models/{dist}.npy""".format(dist=args.distribution), pdf)
+        np.save(dirname + """/tmp_models/{units}.npy""".format(units=args.distribution+"_units"), units_val)
+        np.save(dirname + """/tmp_models/{score}.npy""".format(score=args.distribution+"_scores"), scaled_scores)
+        np.save(dirname + """/tmp_models/{timestamp}.npy""".format(timestamp=args.distribution+"_timestamp"), episode_scores.argsort())
     else:
         for z in ('beta', 'cauchy', 'gamma', 'rayleigh', 'weibull'):
             
-            print("""Running tensorflow model for '{z}' distribution""".format(z=z))
+            print("""\nRunning tensorflow model for '{z}' distribution\n""".format(z=z))
 
             pdf, scaled_scores, units_val, y_val, loss_val, loss_values, y_vals = \
-                random_distributions.execute(stats, z)
+                random_distributions.execute(episode_scores, z)
 
-            np.save("""tmp_models/{dist}.npy""".format(dist=args.distribution), pdf)
-            np.save("""tmp_models/{units}.npy""".format(units=args.distribution+"_units"), units_val)
-            np.save("""tmp_models/{score}.npy""".format(score=args.distribution+"_scores"), scaled_scores)
-            np.save("""tmp_models/{timestamp}.npy""".format(timestamp=args.distribution+"_timestamp"), stats.episode_scores.argsort())
+            np.save(dirname + """/tmp_models/{dist}.npy""".format(dist=z), pdf)
+            np.save(dirname + """/tmp_models/{units}.npy""".format(units=z+"_units"), units_val)
+            np.save(dirname + """/tmp_models/{score}.npy""".format(score=z+"_scores"), scaled_scores)
+            np.save(dirname + """/tmp_models/{timestamp}.npy""".format(timestamp=z+"_timestamp"), episode_scores.argsort())

@@ -3,8 +3,8 @@ from collections import defaultdict, namedtuple
 import math
 import numpy as np
 import sys
-sys.path.append("../../common")
-from mcts import MCTS
+sys.path.append("../../")
+from common.mcts import MCTS
 import scipy
 from scipy.cluster.hierarchy import ward, fcluster
 from scipy.spatial.distance import pdist
@@ -43,7 +43,7 @@ def run_mcts(clusters, noise, scaler, MAX_CLUSTERS, NOISE_PARAM, noise_mean, noi
 
         def reward(self):
             return (MAX_CLUSTERS - self.cluster) / MAX_CLUSTERS + NOISE_PARAM - \
-        abs(scaler.transform(((np.array([self.noise]*action_count) - noise_mean) / noise_std).reshape(1,-1)).flatten()[0])
+        scaler.transform(((np.array([self.noise]*action_count) - noise_mean) / noise_std).reshape(1,-1)).flatten()[0]
         
     return HierarchicalCluster
 

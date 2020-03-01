@@ -22,7 +22,7 @@ from math import sin, cos, radians
 from matplotlib.widgets import CheckButtons
 import time
 from tqdm import tqdm
-sys.path.append("/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/strands_qsr_lib/qsr_lib/build/lib")
+sys.path.append("../build/lib")
 from qsrlib.qsrlib import QSRlib, QSRlib_Request_Message
 from qsrlib_io.world_trace import Object_State, World_Trace
 

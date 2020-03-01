@@ -8,10 +8,6 @@ import numpy as np
 from tqdm import tqdm
 
 tfd = tfp.distributions
-units_var = tf.Variable(tf.ones(stats.episode_scores.shape[0]))
-
-def units_per_cell():
-    return units_var
 
 def beta(min=1e-3, max=0.999, count=500):
     alpha = 0.5
@@ -38,7 +34,12 @@ def weibull(min=1e-3, max=0.999, count=500):
     dist = scipy.stats.exponweib(a, c)
     return dist, dist.pdf(np.linspace(min,max,count))
 
-def execute(stats, distribution, n_iter=200000, lr=1e-1, step_size=10000):
+def execute(scores, distribution, n_iter=40000, lr=1e-1, step_size=4000):
+
+    units_var = tf.Variable(tf.ones(scores.shape[0]))
+
+    def units_per_cell():
+        return units_var
 
     if distribution == "beta":
         dist, pdf = beta()
@@ -54,14 +55,14 @@ def execute(stats, distribution, n_iter=200000, lr=1e-1, step_size=10000):
         print("The distribution must be specified")
         exit()
     
-    x = tf.Variable(tf.ones(stats.episode_scores.shape[0]), shape=stats.episode_scores.shape)
-    scaler = MinMaxScaler(feature_range=(0,1)).fit(stats.episode_scores.reshape(-1,1))
-    scaled_scores = scaler.transform(stats.episode_scores.reshape(-1,1)).flatten()
+    x = tf.Variable(tf.ones(scores.shape[0]), shape=scores.shape)
+    scaler = MinMaxScaler(feature_range=(0,1)).fit(scores.reshape(-1,1))
+    scaled_scores = scaler.transform(scores.reshape(-1,1)).flatten()
     scaled_scores.sort()
 
     optimizer = tf.train.GradientDescentOptimizer(lr)
 
-    y = MinMaxScaler(feature_range=(0,1)).fit_transform(pdf).reshape(-1,1)).flatten()
+    y = MinMaxScaler(feature_range=(0,1)).fit_transform(pdf.reshape(-1,1)).flatten()
     y.sort()
     y_estimated = scaled_scores * units_per_cell()
 
@@ -85,4 +86,4 @@ def execute(stats, distribution, n_iter=200000, lr=1e-1, step_size=10000):
             if step % step_size == 0:
                 print(step, loss_val)
 
-    return pdf, scaled_scores, units_val, y_val, loss_val, loss_values, y_vals
+    return y, scaled_scores, units_val, y_val, loss_val, loss_values, y_vals

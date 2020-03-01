@@ -40,35 +40,35 @@ python3 execute.py --distribution "$dist"
 if [ $dist -eq "beta" ]
 then
 
-    python2.7 ../../qsr_lib_ocr/qsr_lib/scripts/qstag_example_beta.py --dist tmp_models/beta.py --units tmp_models/beta_units.py --scores tmp_models/beta_scores.py
+    python2.7 "$PWD"/qsr_lib_ocr/qsr_lib/scripts/qstag_example_beta.py --beta "$PWD"/ocr-data/state_speech/tmp_models/beta.npy --units "$PWD"/ocr-data/state_speech/tmp_models/beta_units.npy --scores "$PWD"/ocr-data/state_speech/tmp_models/beta_scores.npy --timestamp "$PWD"/ocr-data/state_speech/tmp_models/beta_timestamp.npy
 
 elif [ $dist -eq "cauchy" ]
 then
 
-    python2.7 ../../qsr_lib_ocr/qsr_lib/scripts/qstag_example_cauchy.py --dist tmp_models/cauchy.py --units tmp_models/cauchy_units.py --scores tmp_models/cauchy_scores.py
+    python2.7 "$PWD"/qsr_lib_ocr/qsr_lib/scripts/qstag_example_cauchy.py --cauchy "$PWD"/ocr-data/state_speech/tmp_models/cauchy.npy --units "$PWD"/ocr-data/state_speech/tmp_models/cauchy_units.npy --scores "$PWD"/ocr-data/state_speech/tmp_models/cauchy_scores.npy --timestamp "$PWD"/ocr-data/state_speech/tmp_models/cauchy_timestamp.npy
 
 elif [ $dist -eq "gamma" ]
 then
 
-    python2.7 ../../qsr_lib_ocr/qsr_lib/scripts/qstag_example_gamma.py --dist tmp_models/gamma.py --units tmp_models/gamma_units.py --scores tmp_models/gamma_scores.py
+    python2.7 "$PWD"/qsr_lib_ocr/qsr_lib/scripts/qstag_example_gamma.py --gamma "$PWD"/ocr-data/state_speech/tmp_models/gamma.npy --units "$PWD"/ocr-data/state_speech/tmp_models/gamma_units.npy --scores "$PWD"/ocr-data/state_speech/tmp_models/gamma_scores.npy --timestamp "$PWD"/ocr-data/state_speech/tmp_models/gamma_timestamp.npy
 
 elif [ $dist -eq "rayleigh" ]
 then
 
-    python2.7 ../../qsr_lib_ocr/qsr_lib/scripts/qstag_example_rayleigh.py --dist tmp_models/rayleigh.py --units tmp_models/rayleigh_units.py --scores tmp_models/rayleigh_scores.py
+    python2.7 "$PWD"/qsr_lib_ocr/qsr_lib/scripts/qstag_example_rayleigh.py --rayleigh "$PWD"/ocr-data/state_speech/tmp_models/rayleigh.npy --units "$PWD"/ocr-data/state_speech/tmp_models/rayleigh_units.npy --scores "$PWD"/ocr-data/state_speech/tmp_models/rayleigh_scores.npy --timestamp "$PWD"/ocr-data/state_speech/tmp_models/rayleigh_timestamp.npy
 
 elif [ $dist -eq "weibull" ]
 then
 
-    python2.7 ../../qsr_lib_ocr/qsr_lib/scripts/qstag_example_weibull.py --dist tmp_models/weibull.py --units tmp_models/weibull_units.py --scores tmp_models/weibull_scores.py
+    python2.7 "$PWD"/qsr_lib_ocr/qsr_lib/scripts/qstag_example_weibull.py --weibull "$PWD"/ocr-data/state_speech/tmp_models/weibull.npy --units "$PWD"/ocr-data/state_speech/tmp_models/weibull_units.npy --scores "$PWD"/ocr-data/state_speech/tmp_models/weibull_scores.npy --timestamp "$PWD"/ocr-data/state_speech/tmp_models/weibull_timestamp.npy
 
 elif [ $dist -eq "all" ]
 then
-    python2.7 ../../qsr_lib_ocr/qsr_lib/scripts/qstag_example_beta.py --dist tmp_models/beta.py --units tmp_models/beta_units.py --scores tmp_models/beta_scores.py
-    python2.7 ../../qsr_lib_ocr/qsr_lib/scripts/qstag_example_cauchy.py --dist tmp_models/cauchy.py --units tmp_models/cauchy_units.py --scores tmp_models/cauchy_scores.py
-    python2.7 ../../qsr_lib_ocr/qsr_lib/scripts/qstag_example_gamma.py --dist tmp_models/gamma.py --units tmp_models/gamma_units.py --scores tmp_models/gamma_scores.py
-    python2.7 ../../qsr_lib_ocr/qsr_lib/scripts/qstag_example_rayleigh.py --dist tmp_models/rayleigh.py --units tmp_models/rayleigh_units.py --scores tmp_models/rayleigh_scores.py
-    python2.7 ../../qsr_lib_ocr/qsr_lib/scripts/qstag_example_weibull.py --dist tmp_models/weibull.py --units tmp_models/weibull_units.py --scores tmp_models/weibull_scores.py
+    python2.7 "$PWD"/qsr_lib_ocr/qsr_lib/scripts/qstag_example_beta.py --beta "$PWD"/ocr-data/state_speech/tmp_models/beta.npy --units "$PWD"/ocr-data/state_speech/tmp_models/beta_units.npy --scores "$PWD"/ocr-data/state_speech/tmp_models/beta_scores.npy --timestamp "$PWD"/ocr-data/state_speech/tmp_models/beta_timestamp.npy
+    python2.7 "$PWD"/qsr_lib_ocr/qsr_lib/scripts/qstag_example_cauchy.py --cauchy "$PWD"/ocr-data/state_speech/tmp_models/cauchy.npy --units "$PWD"/ocr-data/state_speech/tmp_models/cauchy_units.npy --scores "$PWD"/ocr-data/state_speech/tmp_models/cauchy_scores.npy --timestamp "$PWD"/ocr-data/state_speech/tmp_models/cauchy_timestamp.npy
+    python2.7 "$PWD"/qsr_lib_ocr/qsr_lib/scripts/qstag_example_gamma.py --gamma "$PWD"/ocr-data/state_speech/tmp_models/gamma.npy --units "$PWD"/ocr-data/state_speech/tmp_models/gamma_units.npy --scores "$PWD"/ocr-data/state_speech/tmp_models/gamma_scores.npy --timestamp "$PWD"/ocr-data/state_speech/tmp_models/gamma_timestamp.npy
+    python2.7 "$PWD"/qsr_lib_ocr/qsr_lib/scripts/qstag_example_rayleigh.py --rayleigh "$PWD"/ocr-data/state_speech/tmp_models/rayleigh.npy --units "$PWD"/ocr-data/state_speech/tmp_models/rayleigh_units.npy --scores "$PWD"/ocr-data/state_speech/tmp_models/rayleigh_scores.npy --timestamp "$PWD"/ocr-data/state_speech/tmp_models/rayleigh_timestamp.npy
+    python2.7 "$PWD"/qsr_lib_ocr/qsr_lib/scripts/qstag_example_weibull.py --weibull "$PWD"/ocr-data/state_speech/tmp_models/weibull.npy --units "$PWD"/ocr-data/state_speech/tmp_models/weibull_units.npy --scores "$PWD"/ocr-data/state_speech/tmp_models/weibull_scores.npy --timestamp "$PWD"/ocr-data/state_speech/tmp_models/weibull_timestamp.npy
 else
     echo "No distribution specified.\n"
     exit

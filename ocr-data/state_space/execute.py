@@ -22,6 +22,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
 	parser.add_argument("--distribution", type=str, default=False, help="Distribution")
     parser.add_argument("--MAX_CLUSTERS", type=int, default=1000, help="Max Clusters")
+    parser.add_argument("--NOISE_PARAM", type=float, default=4.30, help="Noise Parameter")
     parser.add_argument("--num_epochs", type=int, default=2, help="No. of epochs")
     parser.add_argument("--max_number_of_episodes", type=int, default=500, help="Max No. of epochs")
 
@@ -118,6 +119,7 @@ def discount_rewards(r, svd_model, gamma=0.999):
 
 def execute(args):
     MAX_CLUSTERS = args.MAX_CLUSTERS
+    NOISE_PARAM = args.NOISE_PARAM
     num_epochs = args.num_epochs
     max_number_of_episodes = args.max_number_of_episodes
 
