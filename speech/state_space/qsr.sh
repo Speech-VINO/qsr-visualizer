@@ -11,6 +11,7 @@ then
 else
       echo "python2.7 available.\n"
       python2.7 -m pip install --user "ruamel.yaml"
+      python2.7 -m pip install --user matplotlib
 fi
 
 if test -z "$path3"
@@ -46,36 +47,36 @@ python3 speech/state_space/plot.py --distribution "$dist"
 if [ "$dist" == "beta" ]
 then
 
-    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_beta.py --beta "$PWD"/speech/state_space/tmp_models/beta.npy --units "$PWD"/speech/state_space/tmp_models/beta_units.npy --scores "$PWD"/speech/state_space/tmp_models/beta_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/beta_timestamp.npy tpcc
+    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_beta.py --print_graph --beta "$PWD"/speech/state_space/tmp_models/beta.npy --units "$PWD"/speech/state_space/tmp_models/beta_units.npy --scores "$PWD"/speech/state_space/tmp_models/beta_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/beta_timestamp.npy tpcc
 
 elif [ "$dist" == "cauchy" ]
 then
 
-    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_cauchy.py --cauchy "$PWD"/speech/state_space/tmp_models/cauchy.npy --units "$PWD"/speech/state_space/tmp_models/cauchy_units.npy --scores "$PWD"/speech/state_space/tmp_models/cauchy_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/cauchy_timestamp.npy tpcc
+    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_cauchy.py --print_graph --cauchy "$PWD"/speech/state_space/tmp_models/cauchy.npy --units "$PWD"/speech/state_space/tmp_models/cauchy_units.npy --scores "$PWD"/speech/state_space/tmp_models/cauchy_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/cauchy_timestamp.npy tpcc
 
 elif [ "$dist" == "gamma" ]
 then
 
-    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_gamma.py --gamma "$PWD"/speech/state_space/tmp_models/gamma.npy --units "$PWD"/speech/state_space/tmp_models/gamma_units.npy --scores "$PWD"/speech/state_space/tmp_models/gamma_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/gamma_timestamp.npy tpcc
+    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_gamma.py --print_graph --gamma "$PWD"/speech/state_space/tmp_models/gamma.npy --units "$PWD"/speech/state_space/tmp_models/gamma_units.npy --scores "$PWD"/speech/state_space/tmp_models/gamma_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/gamma_timestamp.npy tpcc
 
 elif [ "$dist" == "rayleigh" ]
 then
 
-    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_rayleigh.py --rayleigh "$PWD"/speech/state_space/tmp_models/rayleigh.npy --units "$PWD"/speech/state_space/tmp_models/rayleigh_units.npy --scores "$PWD"/speech/state_space/tmp_models/rayleigh_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/rayleigh_timestamp.npy tpcc
+    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_rayleigh.py --print_graph --rayleigh "$PWD"/speech/state_space/tmp_models/rayleigh.npy --units "$PWD"/speech/state_space/tmp_models/rayleigh_units.npy --scores "$PWD"/speech/state_space/tmp_models/rayleigh_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/rayleigh_timestamp.npy tpcc
 
 elif [ "$dist" == "weibull" ]
 then
 
-    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_weibull.py --weibull "$PWD"/speech/state_space/tmp_models/weibull.npy --units "$PWD"/speech/state_space/tmp_models/weibull_units.npy --scores "$PWD"/speech/state_space/tmp_models/weibull_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/weibull_timestamp.npy tpcc
+    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_weibull.py --print_graph --weibull "$PWD"/speech/state_space/tmp_models/weibull.npy --units "$PWD"/speech/state_space/tmp_models/weibull_units.npy --scores "$PWD"/speech/state_space/tmp_models/weibull_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/weibull_timestamp.npy tpcc
 
 elif [ "$dist" == "all" ]
 then
 
-    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_beta.py --beta "$PWD"/speech/state_space/tmp_models/beta.npy --units "$PWD"/speech/state_space/tmp_models/beta_units.npy --scores "$PWD"/speech/state_space/tmp_models/beta_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/beta_timestamp.npy tpcc
-    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_cauchy.py --cauchy "$PWD"/speech/state_space/tmp_models/cauchy.npy --units "$PWD"/speech/state_space/tmp_models/cauchy_units.npy --scores "$PWD"/speech/state_space/tmp_models/cauchy_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/cauchy_timestamp.npy tpcc
-    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_gamma.py --gamma "$PWD"/speech/state_space/tmp_models/gamma.npy --units "$PWD"/speech/state_space/tmp_models/gamma_units.npy --scores "$PWD"/speech/state_space/tmp_models/gamma_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/gamma_timestamp.npy tpcc
-    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_rayleigh.py --rayleigh "$PWD"/speech/state_space/tmp_models/rayleigh.npy --units "$PWD"/speech/state_space/tmp_models/rayleigh_units.npy --scores "$PWD"/speech/state_space/tmp_models/rayleigh_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/rayleigh_timestamp.npy tpcc
-    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_weibull.py --weibull "$PWD"/speech/state_space/tmp_models/weibull.npy --units "$PWD"/speech/state_space/tmp_models/weibull_units.npy --scores "$PWD"/speech/state_space/tmp_models/weibull_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/weibull_timestamp.npy tpcc
+    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_beta.py --print_graph --beta "$PWD"/speech/state_space/tmp_models/beta.npy --units "$PWD"/speech/state_space/tmp_models/beta_units.npy --scores "$PWD"/speech/state_space/tmp_models/beta_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/beta_timestamp.npy tpcc
+    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_cauchy.py --print_graph --cauchy "$PWD"/speech/state_space/tmp_models/cauchy.npy --units "$PWD"/speech/state_space/tmp_models/cauchy_units.npy --scores "$PWD"/speech/state_space/tmp_models/cauchy_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/cauchy_timestamp.npy tpcc
+    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_gamma.py --print_graph --gamma "$PWD"/speech/state_space/tmp_models/gamma.npy --units "$PWD"/speech/state_space/tmp_models/gamma_units.npy --scores "$PWD"/speech/state_space/tmp_models/gamma_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/gamma_timestamp.npy tpcc
+    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_rayleigh.py --print_graph --rayleigh "$PWD"/speech/state_space/tmp_models/rayleigh.npy --units "$PWD"/speech/state_space/tmp_models/rayleigh_units.npy --scores "$PWD"/speech/state_space/tmp_models/rayleigh_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/rayleigh_timestamp.npy tpcc
+    python2.7 "$PWD"/qsr_lib_speech/qsr_lib/scripts/qstag_example_weibull.py --print_graph --weibull "$PWD"/speech/state_space/tmp_models/weibull.npy --units "$PWD"/speech/state_space/tmp_models/weibull_units.npy --scores "$PWD"/speech/state_space/tmp_models/weibull_scores.npy --timestamp "$PWD"/speech/state_space/tmp_models/weibull_timestamp.npy tpcc
 
 else
     echo "No distribution specified.\n"

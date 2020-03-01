@@ -30,13 +30,9 @@ The Monte Carlo Tree Search Algorithm updates the rewards based on the end resul
 
 Here are the results shown during training of the Reward Scores, No. of Units, Chosen probability density function:
 
-**Below is the gamma distribution used for speech:**
+**Below is the beta plot used for speech:**
 
-![Speech Gamma](./speech/simulator/speech_gamma.png)
-
-**Below is the no. of units used for calibration of gamma:**
-
-![Speech Gamma Units](./speech/simulator/speech_gamma_units.png)
+![Speech Beta](./speech/simulator/speech_beta.png)
 
 **Below is the weibull distribution used for OCR:**
 
@@ -145,12 +141,18 @@ It takes a huge time to train the state space for OCR project. The results are s
 Episode scores for Speech:
 --------------------------
 
+**As you can see the rewards obtained here (colored green) are either power series or harmonic functions but not asymptotic in nature.**
+
+![Episode Scores for Speech (Beta)](./speech/simulator/speech_beta.png)
+
 ![Episode scores for Speech](./speech/simulator/speech_episode_scores.png)
 
 Episode scores for OCR:
 -----------------------
 
-![Episode scores for OCR](./speech/simulator/ocr_episode_scores.png)
+**As you can see the rewards obtained here are asymptotic in nature.**
+
+![Episode scores for OCR](./ocr-data/simulator/ocr_episode_scores.png)
 
 ## App Main Page
 
@@ -194,6 +196,9 @@ The MCTS algorithm replicates the source dataset of speech for searching the dat
 
 - by factor analysis correlation
 - by maximising the reward by least noise
+
+In the case of MAX_CLUSTERS = 11, MCTS coverage is obtained to be 1.0
+In the case of MAX_CLUSTERS = 20, MCTS coverage is obtained to be 0.75
 
 ```python
 

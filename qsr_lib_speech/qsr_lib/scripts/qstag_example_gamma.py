@@ -141,11 +141,13 @@ if __name__ == "__main__":
 	print("Time: ", t2 - t1)
 
 	if args.print_graph:
-		"""PRINT THE GRAPH TO FILE"""
-		#print("QSTAG Graph:\n", qstag.graph)
-		utils.graph2dot(qstag, "/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/gamma_graph.dot")
-		os.system('dot -Tpdf /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/gamma_graph.dot -o /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/gamma_graph.pdf')
-		os.system('dot -Tpng /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/gamma_graph.dot -o /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/gamma_graph.png')
+		dirname = os.path.dirname(os.path.abspath(__file__))
+		utils.graph2dot(qstag, """{dirname}/../../../speech/simulator/gamma_graph.dot""")
+		os.system("""dot -Tpdf {dirname}/../../../speech/simulator/gamma_graph.dot -o {dirname}/../../../speech/simulator/gamma_graph.pdf""")
+		os.system("""dot -Tpng {dirname}/../../../speech/simulator/gamma_graph.dot -o {dirname}/../../../speech/simulator/gamma_graph.png""")
+		img = mpimg.imread(dirname + '/../../../speech/simulator/gamma_graph.png')
+		imgplot = plt.imshow(img)
+		plt.show()
 
 	print("Episodes:")
 	for i in qstag.episodes:

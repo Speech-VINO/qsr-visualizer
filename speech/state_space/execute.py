@@ -62,7 +62,7 @@ def discount_rewards(r, factor_model, gamma=0.999):
         discounted_r[t] = running_add
     return discounted_r
 
-def execute(MAX_CLUSTERS=11, NOISE_PARAM=4.30, num_epochs=1, max_number_of_episodes=500, reward_sum=0):
+def execute(MAX_CLUSTERS=20, NOISE_PARAM=4.30, num_epochs=1, max_number_of_episodes=500, reward_sum=0):
 
     state_space, non_deterministic_hierarchical_clustering, least_noise_model, marginal_model = \
     state_space_model(factors, noises, mel_component_matrix, MAX_CLUSTERS)

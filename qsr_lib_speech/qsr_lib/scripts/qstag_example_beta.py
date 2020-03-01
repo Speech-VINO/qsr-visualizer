@@ -11,6 +11,8 @@ from qsrlib.qsrlib import QSRlib, QSRlib_Request_Message
 from qsrlib_io.world_trace import Object_State, World_Trace
 import qsrlib_qstag.utils as utils
 from time import time
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 def pretty_print_world_qsr_trace(which_qsr, qsrlib_response_message):
 	print(which_qsr, "request was made at ", str(qsrlib_response_message.req_made_at)
@@ -142,10 +144,13 @@ if __name__ == "__main__":
 
 	if args.print_graph:
 		"""PRINT THE GRAPH TO FILE"""
-		#print("QSTAG Graph:\n", qstag.graph)
-		utils.graph2dot(qstag, "/home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/beta_graph.dot")
-		os.system('dot -Tpdf /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/beta_graph.dot -o /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/beta_graph.pdf')
-		os.system('dot -Tpng /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/beta_graph.dot -o /home/aswin/Documents/Courses/Udacity/Intel-Edge/Work/EdgeApp/PGCR-Results-Analysis/beta_graph.png')
+		dirname = os.path.dirname(os.path.abspath(__file__))
+		utils.graph2dot(qstag, """{dirname}/../../../speech/simulator/beta_graph.dot""")
+		os.system("""dot -Tpdf {dirname}/../../../speech/simulator/beta_graph.dot -o {dirname}/../../../speech/simulator/beta_graph.pdf""")
+		os.system("""dot -Tpng {dirname}/../../../speech/simulator/beta_graph.dot -o {dirname}/../../../speech/simulator/beta_graph.png""")
+		img = mpimg.imread(dirname + '/../../../speech/simulator/beta_graph.png')
+		imgplot = plt.imshow(img)
+		plt.show()
 
 	print("Episodes:")
 	for i in qstag.episodes:
