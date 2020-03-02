@@ -1,6 +1,6 @@
 # Power BI App for Visualizing Dataset behaviour
 
-In this project, a power bi based visualization app is proposed to analyze the neighborhood of the dataset using Quality Spatial Relations (QSR). Two datasets have been used to be analysed under Monte Carlo Tree Search (MCTS) and also other popular Machine Learning algorithms. MCTS uses a UCB (Upper Confidence Bound) based reward system that simulates within the state space of every dataset. 
+In this project, a power bi based visualization app is proposed to analyze the spatial aspects of the dataset using Quality Spatial Relations (QSR). Two datasets have been used to be analysed under Monte Carlo Tree Search (MCTS) and also other popular Machine Learning algorithms. MCTS uses a UCB (Upper Confidence Bound) based reward system that simulates within the state space of every dataset. 
 
 ## Datasets used
 
@@ -10,7 +10,7 @@ From OCR project, [The FUNSD Dataset](https://guillaumejaume.github.io/FUNSD/) b
 
 ## State Space Model
 
-A state space model consisting of features and labels are fed into an MCTS algorithm. The state space model for each dataset consists of observations and transitions. When the data transitions to another state from an initial random state, the UCB model which is a multi-armed action bandit model, executes a Monte Carlo learning for `n` simulations. After obtaining the final state from an input state, the final state looks at the defined clusters which are ordered by a chosen metric. The number of maximum clusters are defined in the app user interface. The maximum clusters should not exceed the state space dimension of the input data.
+A state space model consisting of features and labels are fed into an MCTS algorithm. The state space model for each dataset consists of observations and transitions. When the data transitions to another state from an initial random state, the UCB model which is a multi-armed action bandit model, executes a Monte Carlo learning for `n` simulations. After obtaining the final state from an input state, the final state looks at the defined clusters which are ordered by a chosen metric. The number of maximum clusters are defined in the app's user interface. The maximum clusters should not exceed the state space dimension of the input data.
 
 ### Observations
 
@@ -44,7 +44,7 @@ Here are the results shown during training of the Reward Scores, No. of Units, C
 
 ## Data Processing
 
-For a dataset, the feature extraction is the first step. An Expectation Maximisation step has likelihoods in various forms. For factor analysis, there is a marginal likelihood; for dirichlet processes, the likelihood is a differential equation. Since the EM step is Gaussian in nature, the probability distribution(s) is/are used for clustering and searching the dataset. 
+For a dataset, the feature extraction is the first step. An Expectation Maximisation step has likelihoods in various forms. For factor analysis, there is a marginal likelihood; for dirichlet processes, the likelihood is a differential equation.
 
 The episode scores obtained from running the MCTS algorithm, must be sorted in order to create a time series data for QSR analysis. The timestamps will be corresponding to `argsort()` of `episode_scores`. The rewards are hierarchical in nature, and hence the sorting of the scores are performed. 
 
@@ -136,7 +136,14 @@ For the Speech project, the state space dimensions are:
 Observations: 60
 Transitions: 24
 
-It takes a huge time to train the state space for OCR project. The results are shown here:
+The results of running MCTS on OCR and Speech are shown here:
+
+Episode scores for OCR:
+-----------------------
+
+**As you can see the rewards obtained here are asymptotic in nature.**
+
+![Episode scores for OCR](./ocr-data/simulator/ocr_episode_scores.png)
 
 Episode scores for Speech:
 --------------------------
@@ -146,13 +153,6 @@ Episode scores for Speech:
 ![Episode Scores for Speech (Beta)](./speech/simulator/speech_beta.png)
 
 ![Episode scores for Speech](./speech/simulator/speech_episode_scores.png)
-
-Episode scores for OCR:
------------------------
-
-**As you can see the rewards obtained here are asymptotic in nature.**
-
-![Episode scores for OCR](./ocr-data/simulator/ocr_episode_scores.png)
 
 ## App Main Page
 
@@ -209,6 +209,7 @@ mcts_reward = (MAX_CLUSTERS - self.cluster) / MAX_CLUSTERS + NOISE_PARAM - \
         scaler.transform(((np.array([self.noise]*action_count) - noise_mean) / noise_std).reshape(1,-1)).flatten()[0]
 
 ```
+___________________________
 
 The MCTS algorithm replicates the source dataset of ocr for searching the dataset:
 
@@ -224,6 +225,7 @@ mcts_reward = (MAX_CLUSTERS - self.cluster) / MAX_CLUSTERS + NOISE_PARAM - \
         scaler.transform(((np.array([self.similarity]*action_count) - similarity_mean) / similarity_std).reshape(1,-1)).flatten()[0]
 
 ```
+____________________________
 
 ## Data Wrangling
 
@@ -232,6 +234,10 @@ In the data wrangling stage, the data is processed through a complex plane where
 - no. of units required for calibration, 
 - the chosen probability density function,
 - scores that are scaled from 0 to 1
+
+## Why is a probability density function chosen?
+
+A probability density function is chosen because it can maximise the likelihood of a statistical model for a given use case. In the case of factor analysis, when the data is decomposed into its latent space, there are two Gaussian models which express the ground truth in terms of how the overall model can capture the variance. If a statistical model is compared against a probability density function, the QSR visualizer can estimate time, a histogram of intervals and a histogram of QSR relations.
 
 ## Multi-armed bandit frameworks
 
@@ -252,37 +258,47 @@ In a multi-armed bandit framework, a person simulates the environment by taking 
 
 The net time taken to produce the Qualitative Spatio-Temporal Activity Graph (QSTAG)
 
-Time:  0.0235321521759
+Time:  0.100687980652
+
+number of eps: 39
 
 Histogram of Graphlets:
-[2, 2, 3, 2, 2, 1]
+[20, 16, 13, 16, 16, 16, 2, 2, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1]
 
 #### Cauchy Distribution
 
 The net time taken to produce the Qualitative Spatio-Temporal Activity Graph (QSTAG)
 
-Time:  55.6756868362
+Time:  8.43655991554
+
+number of eps: 146
 
 Histogram of Graphlets:
-[63, 23, 54, 42, 100, 32, 13, 49, 1, 42, 21, 16, 28, 4, 2, 29, 18, 9, 2, 7, 18, 9, 8, 9, 7, 4, 10, 6, 6, 9, 3, 1, 17, 7, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1]
+[70, 69, 73, 1, 70, 66, 69, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1]
 
 #### Gamma Distribution
 
-Time:  365.94026804
+Time:  0.0908880233765
+
+number of eps: 37
 
 Histogram of Graphlets:
-[2, 100, 69, 58, 15, 127, 50, 45, 39, 35, 2, 65, 29, 27, 112, 30, 28, 24, 7, 1, 4, 39, 14, 22, 27, 23, 2, 2, 1, 12, 2, 1, 2, 5, 5, 1, 3, 3, 3, 3, 1, 1, 3, 2, 2, 2]
+[19, 16, 14, 16, 16, 2, 16, 2, 2, 2, 2, 1]
 
 #### Rayleigh Distribution
 
-Time:  11.341711998
+Time:  1.20572209358
+
+number of eps: 89
 
 Histogram of Graphlets:
-[78, 76, 77, 77, 76, 75, 1, 1, 1, 1, 1, 1]
+[45, 41, 41, 38, 41, 41, 2, 2, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1]
 
 #### Weibull Distribution
 
-Time:  190.360364914
+Time:  0.0927407741547
+
+number of eps: 37
 
 Histogram of Graphlets:
-[30, 9, 64, 125, 19, 81, 58, 59, 44, 60, 18, 18, 14, 29, 3, 23, 3, 24, 86, 33, 14, 40, 1, 3, 6, 3, 4, 4, 2, 1, 3, 1, 3, 2, 2, 2, 3, 2, 1, 2, 1]
+[19, 16, 14, 16, 16, 2, 16, 2, 2, 2, 2, 1]
