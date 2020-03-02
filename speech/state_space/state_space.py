@@ -36,7 +36,7 @@ def run_mcts(clusters, noise, scaler, MAX_CLUSTERS, NOISE_PARAM, noise_mean, noi
 
         @staticmethod
         def set_terminal(cluster, n):
-            return cluster == 9 or HierarchicalCluster.has_children(cluster, n)
+            return (cluster == MAX_CLUSTERS-1) or HierarchicalCluster.has_children(cluster, n)
         
         def is_terminal(self):
             return self.terminal

@@ -13,6 +13,8 @@ import qsrlib_qstag.utils as utils
 from time import time
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from collections import defaultdict
+import seaborn
 
 def pretty_print_world_qsr_trace(which_qsr, qsrlib_response_message):
 	print(which_qsr, "request was made at ", str(qsrlib_response_message.req_made_at)
@@ -40,7 +42,10 @@ if __name__ == "__main__":
 	parser.add_argument("qsr", help="choose qsr: %s" % options, type=str, default='qtcbs')
 	parser.add_argument("--ros", action="store_true", default=False, help="Use ROS eco-system")
 
+	parser.add_argument("--plot_episodes", help="plot the episodes", action="store_true", default=False)
 	parser.add_argument("--print_graph", help="print the graph", action="store_true", default=False)
+	parser.add_argument("--print_episodes", help="print the episodes", action="store_true", default=False)
+	parser.add_argument("--print_graphlets", help="print the graphlets", action="store_true", default=False)
 	parser.add_argument("--validate", help="validate state chain. Only QTC", action="store_true", default=False)
 	parser.add_argument("--quantisation_factor", help="quantisation factor for 0-states in qtc, or 's'-states in mos", type=float, default=0.01)
 	parser.add_argument("--no_collapse", help="does not collapse similar adjacent states. Only QTC", action="store_true", default=True)
@@ -152,13 +157,23 @@ if __name__ == "__main__":
 		imgplot = plt.imshow(img)
 		plt.show()
 
-	print("Episodes:")
-	for i in qstag.episodes:
-		print(i)
+	if args.print_episodes:
+		print("Episodes:")
+		for i in qstag.episodes:
+			print(i)
 
-	print("\n,Graphlets:")
-	for i, j in qstag.graphlets.graphlets.items():
-		print("\n", j)
+	if args.plot_episodes:
+		dist = defaultdict(float)
+		for i in qstag.episodes:
+			obj, t, interval = i
+			dist[t[args.qsr]] += interval[1] - interval[0] + 1.0
+		seaborn.barplot(x=list(dist.keys()), y=list(dist.values()))
+		plt.show()
+
+	if args.print_graphlets:
+		print("\n,Graphlets:")
+		for i, j in qstag.graphlets.graphlets.items():
+			print("\n", j)
 
 	print("\nHistogram of Graphlets:")
 	print(qstag.graphlets.histogram)

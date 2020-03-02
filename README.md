@@ -192,6 +192,8 @@ results = sess.run(None, {'latent': np.load('speech/dataset/latent.npy')})
 
 ### MCTS Results
 
+#### Speech
+
 The MCTS algorithm replicates the source dataset of speech for searching the dataset:
 
 - by factor analysis correlation
@@ -210,6 +212,8 @@ mcts_reward = (MAX_CLUSTERS - self.cluster) / MAX_CLUSTERS + NOISE_PARAM - \
 
 ```
 ___________________________
+
+#### OCR data
 
 The MCTS algorithm replicates the source dataset of ocr for searching the dataset:
 
@@ -246,9 +250,11 @@ In a multi-armed bandit framework, a person simulates the environment by taking 
 - Least Noise model, in the case of Factor Analysis
 - Maximum Similarity model, in the case of Latent Semantic Analysis
 
-![Dataset Visualizer](./screenshot.PNG)
+![Dataset Visualizer](./power-bi-visualizer-landing.png)
 
-![Graph Statistics](./barplot.PNG)
+![Power BI Distribution Plots1](./power-bi-visualizer-viz1.png)
+
+![Power BI Distribution Plots2](./power-bi-visualizer-viz2.png)
 
 ## Results of Execution (Speech Data)
 
