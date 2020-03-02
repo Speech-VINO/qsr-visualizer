@@ -163,7 +163,7 @@ The App main page is a QSR visualizer page. When the maximum clusters are provid
 How to execute the app
 -------------------------------
 
-./speech/state_space/qsr.sh --d all
+./speech/state_space/qsr.sh -d all
 
 This command shows the final QSR plot after going through a `2` epoch training loop with Speech dataset, and another training loop with `all` distributions.
 
