@@ -1,6 +1,3 @@
-echo "Current working directory: \n"
-echo $PWD
-
 path27=$(which python2.7)
 path3=$(which python3)
 
@@ -14,15 +11,15 @@ else
       python2.7 -m pip install --user matplotlib seaborn
 fi
 
-# if test -z "$path3"
-# then
-#       echo "\$python3 is missing. Please install python3"
-#       return
-# else
-#       echo "python3 available.\n"
-#       echo "Installing python3 packages..\n"
-#       python3 -m pip install --user "tensorflow>=2.0.0"
-# fi
+if test -z "$path3"
+then
+      echo "\npython3 is missing. Please install python3\n"
+      return
+else
+      echo "python3 available.\n"
+      echo "Installing python3 packages..\n"
+      python3 -m pip install --user "tensorflow>=2.0.0"
+fi
 
 while getopts "d:" opt; do
   case $opt in
@@ -41,8 +38,8 @@ fi
 
 echo "Analysing the state space.. \nIt trains a Tensorflow model and produces plots.."
 
-# python3 speech/state_space/execute.py --distribution "$dist"
-# python3 speech/state_space/plot.py --distribution "$dist"
+python3 speech/state_space/execute.py --distribution "$dist"
+python3 speech/state_space/plot.py --distribution "$dist"
 
 if [ "$dist" == "beta" ]
 then

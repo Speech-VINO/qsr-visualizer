@@ -8,6 +8,40 @@ From Speech project, [The RAVDESS dataset](https://www.kaggle.com/uwrfkaggler/ra
 
 From OCR project, [The FUNSD Dataset](https://guillaumejaume.github.io/FUNSD/) based on the paper [FUNSD Paper](https://arxiv.org/abs/1905.13538) has been pre-processed using [preprocess.py](./ocr-data/text/preprocess.py).
 
+# App Main Page
+
+The App main page is a QSR visualizer page. When the maximum clusters are provided, the app asks for reward bias as well for input to MCTS simulation. 
+
+## Computational Models used for the Power BI App
+
+### How to execute the app
+
+./speech/state_space/qsr.sh -d all
+
+This command shows the final QSR plot after going through a `2` epoch training loop with Speech dataset, and another training loop with `all` distributions.
+
+QSR Visualizer provides 2 plots:
+
+- A Calculus plot (involving Region Connection Calculus (RCC), Ternary Point Configuration Calculus (TPCC))
+- A Graphlet (involving temporal information integrated with the calculus)
+
+All `.npy` files within [tmp_models](./speech/state_space/tmp_models) form the World Trace objects.
+
+### How to train the vectorized model `factor_analysis.onnx`
+
+python ./speech/state_space/factor_analysis.py --n_iter=20000 --learning_rate=0.001 --filepath=./speech/state_space/models/factor_analysis.onnx
+
+#### Inference from the onnx model
+
+```python
+
+import onnxruntime as nxrun
+sess = nxrun.InferenceSession("./speech/state_space/models/factor_analysis.onnx")
+
+results = sess.run(None, {'latent': np.load('speech/dataset/latent.npy')})
+
+```
+
 ## State Space Model
 
 A state space model consisting of features and labels are fed into an MCTS algorithm. The state space model for each dataset consists of observations and transitions. When the data transitions to another state from an initial random state, the UCB model which is a multi-armed action bandit model, executes a Monte Carlo learning for `n` simulations. After obtaining the final state from an input state, the final state looks at the defined clusters which are ordered by a chosen metric. The number of maximum clusters are defined in the app's user interface. The maximum clusters should not exceed the state space dimension of the input data.
@@ -128,67 +162,29 @@ def process_factors(ica_mixing_array, strings):
 
 For the OCR project, the state space dimensions are:
 
-Observations: 199
-Transitions: 5823
+- Observations: 199
+- Transitions: 5823
 
 For the Speech project, the state space dimensions are:
 
-Observations: 60
-Transitions: 24
+- Observations: 60
+- Transitions: 24
 
 The results of running MCTS on OCR and Speech are shown here:
 
-Episode scores for OCR:
------------------------
+### Episode scores for OCR:
 
 **As you can see the rewards obtained here are asymptotic in nature.**
 
 ![Episode scores for OCR](./ocr-data/simulator/ocr_episode_scores.png)
 
-Episode scores for Speech:
---------------------------
+### Episode scores for Speech:
 
 **As you can see the rewards obtained here (colored green) are either power series or harmonic functions but not asymptotic in nature.**
 
 ![Episode Scores for Speech (Beta)](./speech/simulator/speech_beta.png)
 
 ![Episode scores for Speech](./speech/simulator/speech_episode_scores.png)
-
-## App Main Page
-
-The App main page is a QSR visualizer page. When the maximum clusters are provided, the app asks for reward bias as well for input to MCTS simulation. 
-
-#### Computational Models used for the Power BI App
-
-How to execute the app
--------------------------------
-
-./speech/state_space/qsr.sh -d all
-
-This command shows the final QSR plot after going through a `2` epoch training loop with Speech dataset, and another training loop with `all` distributions.
-
-QSR Visualizer provides 2 plots:
-
-- A Calculus plot (involving Region Connection Calculus (RCC), Ternary Point Configuration Calculus (TPCC))
-- A Graphlet (involving temporal information integrated with the calculus)
-
-All `.npy` files within [tmp_models](./speech/state_space/tmp_models) form the World Trace objects.
-
-How to train the vectorized model `factor_analysis.onnx`
----------------------------------------------------------
-
-python ./speech/state_space/factor_analysis.py --n_iter=20000 --learning_rate=0.001 --filepath=./speech/state_space/models/factor_analysis.onnx
-
-##### Inference from the onnx model
-
-```python
-
-import onnxruntime as nxrun
-sess = nxrun.InferenceSession("./speech/state_space/models/factor_analysis.onnx")
-
-results = sess.run(None, {'latent': np.load('speech/dataset/latent.npy')})
-
-```
 
 ### MCTS Results
 
@@ -269,6 +265,7 @@ Time:  0.100687980652
 number of eps: 39
 
 Histogram of Graphlets:
+
 [20, 16, 13, 16, 16, 16, 2, 2, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1]
 
 #### Cauchy Distribution
@@ -280,6 +277,7 @@ Time:  8.43655991554
 number of eps: 146
 
 Histogram of Graphlets:
+
 [70, 69, 73, 1, 70, 66, 69, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1]
 
 #### Gamma Distribution
@@ -289,6 +287,7 @@ Time:  0.0908880233765
 number of eps: 37
 
 Histogram of Graphlets:
+
 [19, 16, 14, 16, 16, 2, 16, 2, 2, 2, 2, 1]
 
 #### Rayleigh Distribution
@@ -298,6 +297,7 @@ Time:  1.20572209358
 number of eps: 89
 
 Histogram of Graphlets:
+
 [45, 41, 41, 38, 41, 41, 2, 2, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1]
 
 #### Weibull Distribution
@@ -307,4 +307,5 @@ Time:  0.0927407741547
 number of eps: 37
 
 Histogram of Graphlets:
+
 [19, 16, 14, 16, 16, 2, 16, 2, 2, 2, 2, 1]

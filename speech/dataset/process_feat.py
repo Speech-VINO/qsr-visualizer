@@ -42,6 +42,7 @@ def process_ica(feat_actors, random_state=42):
 def process_factors(ica_mixing_array, strings):
     factors = {}
     noises = {}
+    noise_cov = {}
 
     for state_dim,ica_mixing in tqdm(enumerate(ica_mixing_array)):
         f = factor_analysis.factors.Factor(ica_mixing_array[state_dim], 
@@ -52,4 +53,5 @@ def process_factors(ica_mixing_array, strings):
 
         with tf.Session() as sess:
             factors[strings[state_dim].split("/")[-1].replace(".wav","")] = f.create_factor().eval()
+            noise_cov[strings[state_dim].split("/")[-1].replace(".wav","")] = noise.noise.eval()
             noises[strings[state_dim].split("/")[-1].replace(".wav","")] = noise.create_noise(f.create_factor()).eval()
