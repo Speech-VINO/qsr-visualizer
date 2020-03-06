@@ -103,128 +103,6 @@ ____________
 
 ![Mel Spectrum](./speech/plots/mel_frequency3.png)
 
-```python
-
-def process_feat(samp_rate=48000):
-
-    # code here
-    
-    x, s = librosa.core.load(wav_file)
-
-    fe = sp.FrontEnd(samp_rate=s,mean_norm_feat=True,
-        frame_duration=0.032, frame_shift=0.02274,hi_freq=8000)
-
-    feat = fe.process_utterance(x)
-
-```
-
-### ICA
-
-For evaluating ICA mixing matrix, a random_state=42 is used. 
-
-```python
-
-def process_ica(feat_actors, random_state=42):
-    # code here
-    ica = FastICA(n_components=n_actors, random_state=42)
-    # code here
-
-```
-
-### Factor Analysis
-
-For evaluating Factor Matrix with Noises, the means of the ica mixing matrix are stacked as shown here.
-
-The factor analysis uses a library which can be installed using:
-
-> pip install --user factor_analysis==0.0.2
-
-```python
-
-def process_factors(ica_mixing_array, strings):
-    # code here
-    # here, state_dim is the speech audio string
-
-    f = factor_analysis.factors.Factor(ica_mixing_array[state_dim], 
-    factor_analysis.posterior.Posterior(np.cov(ica_mixing.T), 
-    
-    # mean values are stacked by number of actors here for factor analysis input
-
-    np.concatenate([
-
-        np.mean(ica_mixing,axis=0).reshape(1,-1)/ica_mixing.shape[1]
-
-    ] * ica_mixing.shape[1], axis=0)))
-
-```
-
-## Training of dataset parameters
-
-For the OCR project, the state space dimensions are:
-
-- Observations: 199
-- Transitions: 5823
-
-For the Speech project, the state space dimensions are:
-
-- Observations: 60
-- Transitions: 24
-
-The results of running MCTS on OCR and Speech are shown here:
-
-### Episode scores for OCR:
-
-**As you can see the rewards obtained here are asymptotic in nature.**
-
-![Episode scores for OCR](./ocr-data/simulator/ocr_episode_scores.png)
-
-### Episode scores for Speech:
-
-**As you can see the rewards obtained here (colored green) are either power series or harmonic functions but not asymptotic in nature.**
-
-![Episode Scores for Speech (Beta)](./speech/simulator/speech_beta.png)
-
-![Episode scores for Speech](./speech/simulator/speech_episode_scores.png)
-
-### MCTS Results
-
-#### Speech
-
-The MCTS algorithm replicates the source dataset of speech for searching the dataset:
-
-- by factor analysis correlation
-- by maximising the reward by least noise
-
-In the case of MAX_CLUSTERS = 11, MCTS coverage is obtained to be 1.0
-In the case of MAX_CLUSTERS = 20, MCTS coverage is obtained to be 0.75
-
-```python
-
-MAX_CLUSTERS = 11
-NOISE_PARAM = 4.30
-
-mcts_reward = (MAX_CLUSTERS - self.cluster) / MAX_CLUSTERS + NOISE_PARAM - \
-        scaler.transform(((np.array([self.noise]*action_count) - noise_mean) / noise_std).reshape(1,-1)).flatten()[0]
-
-```
-___________________________
-
-#### OCR data
-
-The MCTS algorithm replicates the source dataset of ocr for searching the dataset:
-
-- by latent sematic analysis similarities
-- by maximising the reward by a regularized similarity
-
-```python
-
-MAX_CLUSTERS = 1000
-NOISE_PARAM = 4.30
-
-mcts_reward = (MAX_CLUSTERS - self.cluster) / MAX_CLUSTERS + NOISE_PARAM - \
-        scaler.transform(((np.array([self.similarity]*action_count) - similarity_mean) / similarity_std).reshape(1,-1)).flatten()[0]
-
-```
 ____________________________
 
 ## Data Wrangling
@@ -252,11 +130,13 @@ In a multi-armed bandit framework, a person simulates the environment by taking 
 
 ![Power BI Distribution Plots2](./power-bi-visualizer-viz2.png)
 
-## Results of Execution (Speech Data)
+# Results of Execution (Speech Data)
 
-### Analysis of Use Cases
+## Analysis of Use Cases
 
-#### Beta Distribution
+These results are obtained after executing a TPCC (Ternary Point Configuration Calculus) algorithm on the World Trace. Each Graphlet is an intermediary layer that computes the Allen relation among the world traces. 
+
+### Beta Distribution
 
 The net time taken to produce the Qualitative Spatio-Temporal Activity Graph (QSTAG)
 
@@ -264,11 +144,11 @@ Time:  0.100687980652
 
 number of eps: 39
 
-Histogram of Graphlets:
+**Histogram of Graphlets:**
 
-[20, 16, 13, 16, 16, 16, 2, 2, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1]
+_[20, 16, 13, 16, 16, 16, 2, 2, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1]_
 
-#### Cauchy Distribution
+### Cauchy Distribution
 
 The net time taken to produce the Qualitative Spatio-Temporal Activity Graph (QSTAG)
 
@@ -276,36 +156,36 @@ Time:  8.43655991554
 
 number of eps: 146
 
-Histogram of Graphlets:
+**Histogram of Graphlets:**
 
-[70, 69, 73, 1, 70, 66, 69, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1]
+_[70, 69, 73, 1, 70, 66, 69, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1]_
 
-#### Gamma Distribution
+### Gamma Distribution
 
 Time:  0.0908880233765
 
 number of eps: 37
 
-Histogram of Graphlets:
+**Histogram of Graphlets:**
 
-[19, 16, 14, 16, 16, 2, 16, 2, 2, 2, 2, 1]
+_[19, 16, 14, 16, 16, 2, 16, 2, 2, 2, 2, 1]_
 
-#### Rayleigh Distribution
+### Rayleigh Distribution
 
 Time:  1.20572209358
 
 number of eps: 89
 
-Histogram of Graphlets:
+**Histogram of Graphlets:**
 
-[45, 41, 41, 38, 41, 41, 2, 2, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1]
+_[45, 41, 41, 38, 41, 41, 2, 2, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1]_
 
-#### Weibull Distribution
+### Weibull Distribution
 
 Time:  0.0927407741547
 
 number of eps: 37
 
-Histogram of Graphlets:
+**Histogram of Graphlets:**
 
-[19, 16, 14, 16, 16, 2, 16, 2, 2, 2, 2, 1]
+_[19, 16, 14, 16, 16, 2, 16, 2, 2, 2, 2, 1]_
